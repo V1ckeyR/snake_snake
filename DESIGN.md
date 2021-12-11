@@ -27,9 +27,7 @@ Clients should only send information about their intentions to the server, which
 
 ### System-context-diagram 🐍
 
-### APIs 🐍
-
-### Data storage 🐍
+![System-context-diagram](https://freeimage.host/i/7wUXUu)
 
 ### Degree of constraint
 
