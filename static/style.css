@@ -1,0 +1,75 @@
+body {
+    display: grid;
+    margin: 0 auto;
+    height: 100vh;
+    background-color: black;
+    font-family: 'monospace';
+    color: white;
+    align-items: center;
+    justify-content: center;
+}
+
+.cell {
+    display: table-cell;
+    background-color: green;
+    border: 3px solid black;
+    width: 40px;
+    height: 40px;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+    margin: 20px;
+}
+
+.triangle {
+    display: table-cell;
+    width: 0;
+    height: 0;
+}
+
+.triangle-up {
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-bottom: 40px solid red;
+}
+
+.triangle-down {
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-top: 40px solid red;
+}
+
+.triangle-right {
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+    border-left: 40px solid red;
+}
+
+.triangle-left {
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+    border-right: 40px solid red;
+}
+
+
+#leader_board {
+    display: inline-grid;
+    grid-template-columns: max-content auto;
+    gap: 10px;
+    align-items: center;
+}
+
+#game_start {
+    display: none;
+    text-align: center;
+}
+
+#game_in_progress {
+    /*display: none;*/
+    display: inline-grid;
+    grid-template-columns: max-content auto;
+    gap: 10px;
+    align-items: center;
+}

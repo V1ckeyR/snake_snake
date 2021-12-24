@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>snake_snake</title>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+<div class="center"> WELCOME TO SNAKE SNAKE GAME!</div>
+
+<div id="field">
+    {# GAME FIELD #}
+    {% for i in size %}
+        <div>
+        {% for j in size %} <div class="cell" id="cell {{ i, j }}"></div> {% endfor %}
+        </div>
+    {% endfor %}
+
+    {# PERSONAL OFFER TO STAST GAME #}
+    <div id="game_start">
+        <div class="center"><div class="triangle triangle-up"></div></div>
+        <div>▷ Tap W to Play! ◁</div>
+        {#<div class="cell"><div class="triangle triangle-down"></div></div>#}
+        {#<div class="cell" style="background-color: red"></div>#}
+    </div>
+
+    {# PERSONAL GAME DATA #}
+    <div id="game_in_progress">
+        <div>Your color: </div>
+        <div class="cell" style="background-color: red"></div>
+        <div>Your score: </div>
+        <div>5000</div>
+    </div>
+
+    {# LEADER BOARD #}
+    <p>Top snakes:</p>
+    <div id="leader_board">
+        <div style="color: red">Red: </div> <div>5000</div>
+        <div style="color: orange">Orange: </div> <div>5000</div>
+        <div style="color: yellow">Yellow: </div> <div>5000</div>
+        <div style="color: greenyellow">Green: </div> <div>5000</div>
+        <div style="color: aqua">Cyan: </div> <div>5000</div>
+        <div style="color: blue">Blue: </div> <div>5000</div>
+        <div style="color: blueviolet">Violet: </div> <div>0</div>
+    </div>
+</div>
+</body>
+</html>
