@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <title>snake_snake</title>
     <link rel="stylesheet" href="../static/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+    <script type="text/javascript" charset="utf-8" src="static/client.js"></script>
+
 </head>
 <body>
 <div class="center"> WELCOME TO SNAKE SNAKE GAME!</div>
@@ -17,32 +20,32 @@
     {% endfor %}
 
     {# PERSONAL OFFER TO STAST GAME #}
-    <div id="game_start">
+    <div id="game_start" class="">
         <div class="center"><div class="triangle triangle-up"></div></div>
-        <div>▷ Tap W to Play! ◁</div>
+        <div>▷ Press W to Play! ◁</div>
         {#<div class="cell"><div class="triangle triangle-down"></div></div>#}
         {#<div class="cell" style="background-color: red"></div>#}
     </div>
 
     {# PERSONAL GAME DATA #}
-    <div id="game_in_progress">
+    <div id="game_in_progress" class="off">
         <div>Your color: </div>
-        <div class="cell" style="background-color: red"></div>
+        <div id="personal_color" class="cell"></div>
         <div>Your score: </div>
-        <div>5000</div>
+        <div id="personal_score">0</div>
     </div>
 
     {# LEADER BOARD #}
-    <p>Top snakes:</p>
-    <div id="leader_board">
-        <div style="color: red">Red: </div> <div>5000</div>
-        <div style="color: orange">Orange: </div> <div>5000</div>
-        <div style="color: yellow">Yellow: </div> <div>5000</div>
-        <div style="color: greenyellow">Green: </div> <div>5000</div>
-        <div style="color: aqua">Cyan: </div> <div>5000</div>
-        <div style="color: blue">Blue: </div> <div>5000</div>
-        <div style="color: blueviolet">Violet: </div> <div>0</div>
-    </div>
+{#    <p>Top snakes:</p>#}
+{#    <div id="leader_board">#}
+{#        <div style="color: red">Red: </div> <div>5000</div>#}
+{#        <div style="color: orange">Orange: </div> <div>5000</div>#}
+{#        <div style="color: yellow">Yellow: </div> <div>5000</div>#}
+{#        <div style="color: greenyellow">Green: </div> <div>5000</div>#}
+{#        <div style="color: aqua">Cyan: </div> <div>5000</div>#}
+{#        <div style="color: blue">Blue: </div> <div>5000</div>#}
+{#        <div style="color: blueviolet">Violet: </div> <div>0</div>#}
+{#    </div>#}
 </div>
 </body>
 </html>

@@ -33,9 +33,11 @@ class _Snake:
 
         if new_head == apple:
             self.body = [self.head] + self.body
+            self.score += 1
         elif self.body:
             self.body = [self.head] + self.body[:-1]
         self.head = new_head
+        self.last_op = key
         return True
 
     def __eq__(self, other):

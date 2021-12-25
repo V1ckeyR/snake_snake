@@ -53,6 +53,10 @@ body {
     border-right: 40px solid red;
 }
 
+.apple {
+    border-radius: 50%;
+    background-color: red;
+}
 
 #leader_board {
     display: inline-grid;
@@ -62,14 +66,16 @@ body {
 }
 
 #game_start {
-    display: none;
     text-align: center;
 }
 
 #game_in_progress {
-    /*display: none;*/
     display: inline-grid;
     grid-template-columns: max-content auto;
     gap: 10px;
     align-items: center;
+}
+
+.off {
+    display: none !important;
 }

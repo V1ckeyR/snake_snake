@@ -71,3 +71,6 @@ class Field:
             for x in range(self.size):
                 if (x, y) == self.apple:
                     self.field[x][y] = 'A'
+
+    def get_player_score(self, player):
+        return self.snakes[player].score
