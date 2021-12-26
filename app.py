@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 import eventlet
@@ -60,7 +62,5 @@ def disconnect():
     game.remove_snake(clients[request.sid])
     clients.pop(request.sid)
     emit('field', game.field, broadcast=True)
-
-
-if __name__ == '__main__':
-    socket_io.run(app)
+    # if not clients:
+    #     game.clear()
