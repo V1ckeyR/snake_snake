@@ -26,6 +26,19 @@ def test_add_same_player():
     assert f.snakes == [player]
 
 
+def test_remove_player():
+    # GIVEN
+    f = Field(size=4)
+    player = 'r'
+
+    # WHEN
+    f.add_player(player)
+    f.remove_player(player)
+
+    # THEN
+    assert not f.snakes
+
+
 def test_generate_field_from_template():
     # GIVEN
     f1, f2 = Field(size=3), Field(size=3)

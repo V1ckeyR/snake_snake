@@ -29,6 +29,10 @@ class Field:
             snake.head = self.entry_point
             self.field[self.entry_point[0]][self.entry_point[1]] = snake.color.upper()
 
+    def remove_player(self, player):
+        if player in self.snakes:
+            self.remove_snake(self.snakes[self.snakes.index(player)])
+
     def add_snake(self, snake):
         self.snakes.append(snake)
         for y in range(self.size):
@@ -59,11 +63,14 @@ class Field:
     def move_snakes(self, players):
         results = {"game over": False}
         for player in players.keys():
-            snake = self.snakes[self.snakes.index(player)]
-            snake_status, game_status = self.move_snake(snake, direction=players[player])
-            results[player] = snake_status
-            if game_status:
-                results["game over"] = game_status  # change only if True
+            if player not in self.snakes:
+                results[player] = False
+            else:
+                snake = self.snakes[self.snakes.index(player)]
+                snake_status, game_status = self.move_snake(snake, direction=players[player])
+                results[player] = snake_status
+                if game_status:
+                    results["game over"] = game_status  # change only if True
         return results
 
     def free_cells(self):
@@ -96,8 +103,9 @@ class Field:
             if snake != attacker:
                 if attacker.head in [snake.head] + snake.body:
                     attacker_alive, defender_alive = attacker.attack(snake)
-                    if not defender_alive:
-                        self.remove_snake(snake)
+                    self.remove_snake(snake)
+                    if defender_alive:
+                        self.add_snake(snake)
                     if attacker_alive:
                         return True
                     return False

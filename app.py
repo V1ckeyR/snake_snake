@@ -1,5 +1,3 @@
-import os
-
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 import eventlet
@@ -11,7 +9,7 @@ eventlet.monkey_patch(thread=False)
 socket_io = SocketIO(app, async_mode='eventlet')
 
 game = Field()
-available = ['r', 'b']
+available = ['r', 'o', 'y', 'g', 'c', 'b', 'v']
 clients = {}
 movements = {}
 
@@ -32,11 +30,10 @@ def handle_start_game():
         player = available.pop(0)
         clients[request.sid] = player
         game.add_player(player)
-        print('Start game: ' + str(clients))
         emit('field', game.field, broadcast=True)
         emit('personal color', player)
     except IndexError:
-        emit('limit')
+        emit('limit')  # TODO
 
 
 @socket_io.on('game')
@@ -45,8 +42,18 @@ def handle_game(key):
     if player not in movements.keys():
         movements[player] = key
 
-    game.move_snakes(movements)
+    results = game.move_snakes(movements)
+    if results['game over']:
+        emit('win', broadcast=True)  # TODO
+        game.clear()
+
+    if not results[player]:
+        clients.pop(request.sid)
+        available.append(player)
+        emit('dead')
+
     movements.clear()
+    game.show()
     emit('field', game.field, broadcast=True)
 
 
@@ -59,8 +66,8 @@ def connect():
 @socket_io.on('disconnect')
 def disconnect():
     print('Client disconnected')
-    game.remove_snake(clients[request.sid])
+    snake = clients[request.sid]
+    game.remove_player(snake)
+    available.append(snake)
     clients.pop(request.sid)
     emit('field', game.field, broadcast=True)
-    # if not clients:
-    #     game.clear()
