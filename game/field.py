@@ -68,7 +68,7 @@ class Field:
             else:
                 snake = self.snakes[self.snakes.index(player)]
                 snake_status, game_status = self.move_snake(snake, direction=players[player])
-                results[player] = snake_status
+                results[player] = (snake_status, snake.score)
                 if game_status:
                     results["game over"] = game_status  # change only if True
         return results

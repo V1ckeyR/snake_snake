@@ -57,6 +57,7 @@ class _Snake:
             return True, False
         if delta < 0:
             other.body = other.body[:-delta]
+            print(other.body)
             return False, True
         return False, False
 

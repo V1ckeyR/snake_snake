@@ -31,7 +31,7 @@ def handle_start_game():
         clients[request.sid] = player
         game.add_player(player)
         emit('field', game.field, broadcast=True)
-        emit('personal color', player)
+        emit('personal data', player)
     except IndexError:
         emit('limit')  # TODO
 
@@ -43,11 +43,12 @@ def handle_game(key):
         movements[player] = key
 
     results = game.move_snakes(movements)
+    emit('personal score', results[player][1])
     if results['game over']:
         emit('win', broadcast=True)  # TODO
         game.clear()
 
-    if not results[player]:
+    if not results[player][0]:
         clients.pop(request.sid)
         available.append(player)
         emit('dead')

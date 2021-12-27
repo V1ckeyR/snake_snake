@@ -125,7 +125,7 @@ def test_move_snakes_meet_boundary():
     results = f.move_snakes(players)
 
     # THEN
-    assert not results['r'] and results['b'] and not results['game over']
+    assert not results['r'][0] and results['b'][0] and not results['game over']
     assert 'r' not in f.snakes and 'b' in f.snakes
 
 
@@ -144,7 +144,7 @@ def test_move_snakes_eat_itself():
     results = f.move_snakes(players)
 
     # THEN
-    assert not results['r'] and results['b'] and not results['game over']
+    assert not results['r'][0] and results['b'][0] and not results['game over']
     assert 'r' not in f.snakes and 'b' in f.snakes
 
 

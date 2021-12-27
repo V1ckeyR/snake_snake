@@ -30,14 +30,19 @@ socket.on('field', function (field) {
     }
 });
 
-socket.on('personal color', function (color) {
-    changeColor(document.getElementById('personal_color'), color)
-})
+socket.on('personal data', function (color) {
+    changeColor(document.getElementById('personal_color'), color);
+    document.getElementById('personal_score').innerText = '0';
+});
+
+socket.on('personal score', function (score) {
+    document.getElementById('personal_score').innerText = score;
+});
 
 socket.on('dead', function () {
     document.getElementById("game_start").classList.remove("off");
     document.getElementById("game_in_progress").className = "off";
-})
+});
 
 document.addEventListener('keydown', function (e) {
     const progress = document.getElementById("game_in_progress");
