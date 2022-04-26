@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Skins Store</title>
+    <link rel="stylesheet" href={{ url_for('static', filename='./css/store.css') }}>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='./img/favicon.ico') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename='./js/store.js') }}"></script>
+</head>
+<body>
+    {# NAV BAR #}
+    <header>
+        <img src="{{ url_for('static', filename='./img/logo.png') }}" alt="logo">
+        <a>kins Shop</a>
+        <img id="avatar" src="{{ url_for('static', filename='./img/avatar.png') }}" alt="avatar">
+    </header>
+
+    {# CATEGORY #}
+    <div class="category-bar">
+        <a class="category-bar_btn corner active">COLOR</a>
+        <a class="category-bar_btn inside">GRADIENT</a>
+        <a class="category-bar_btn corner">PATTERN</a>
+    </div>
+
+    {#  ITEMS TO BUY  #}
+    <div class="container">
+        {# CUSTOM COLOR ITEM #}
+        {% for i in items %}
+            <div class="item">
+                <div class="item-img"></div>
+                <p>$00.50</p>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

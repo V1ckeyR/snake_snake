@@ -1,6 +1,6 @@
 import random
 
-from game._snake import _Snake
+from core.game._snake import _Snake
 
 
 def test_move_wrong_direction():

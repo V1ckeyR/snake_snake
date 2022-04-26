@@ -1,4 +1,4 @@
-from game.field import Field
+from core.game.field import Field
 
 
 def test_add_player():
