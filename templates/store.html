@@ -11,16 +11,36 @@
 <body>
     {# NAV BAR #}
     <header>
-        <img src="{{ url_for('static', filename='./img/logo.png') }}" alt="logo">
-        <a>kins Shop</a>
-        <img id="avatar" src="{{ url_for('static', filename='./img/avatar.png') }}" alt="avatar">
+        <div class="title">
+            <img src="{{ url_for('static', filename='./img/logo.png') }}" alt="logo">
+            <span>kins Shop</span>
+        </div>
+        <div class="panel">
+            <img id="shopping_cart" src="{{ url_for('static', filename='./img/shopping_cart.png') }}" alt="cart">
+            <div class="dropdown">
+                <img id="avatar" src="{{ url_for('static', filename='./img/avatar.png') }}" alt="avatar">
+                <div class="dropdown-content">
+                    <a href="#">My Profile</a>
+                    <a href="#">My Skins</a>
+                    <a href="#">My Balance</a>
+                </div>
+            </div>
+        </div>
     </header>
+
+    {#  SHOPPING CARD  #}
+    <div id="order" class="modal">
+        <div class="modal-content">
+            <span id="close">&times;</span>
+            <p>Your order:</p>
+        </div>
+    </div>
 
     {# CATEGORY #}
     <div class="category-bar">
-        <a class="category-bar_btn corner active">COLOR</a>
-        <a class="category-bar_btn inside">GRADIENT</a>
-        <a class="category-bar_btn corner">PATTERN</a>
+        <a href="#" class="category-bar_btn corner active">COLOR</a>
+        <a href="#" class="category-bar_btn inside">GRADIENT</a>
+        <a href="#" class="category-bar_btn corner">PATTERN</a>
     </div>
 
     {#  ITEMS TO BUY  #}
@@ -33,5 +53,8 @@
             </div>
         {% endfor %}
     </div>
+
+    {# PADDING #}
+    <div class="padding"></div>
 </body>
 </html>
