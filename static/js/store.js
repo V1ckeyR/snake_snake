@@ -3,6 +3,12 @@ $(document).ready(function () {
     var item = $('.item');
     var orderContent = $('#order-content');
     var orderButtons = $('#order-buttons');
+    var dollarLocale = Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumSignificantDigits: 2,
+        minimumFractionDigits: 2,
+    });
 
     function drawOrderList() {
         orderButtons.html('')
@@ -10,15 +16,20 @@ $(document).ready(function () {
             orderContent.html('<span>Oops, it\'s nothing here :(</span>')
         } else {
             orderContent.html('')
+            var total = 0;
             for (let i in order) {
                 var id = order[i]
-                orderContent.append(`<div class="order-card">
-                    <span>${ parseInt(i) + 1 }</span>
-                    <div class="item-img"></div>
-                    <div class="dotted-line"></div>
-                    <span>$00.50</span>
-                    <span id="close_${id}" class="close">&times;</span>
-                </div>`)
+                var cost = $(`#${id}`).children('.cost').text()
+                total += parseFloat(cost.slice(1))
+                orderContent.append(`
+                    <div class="order-card">
+                        <span>${ parseInt(i) + 1 }</span>
+                        <div class="item-img"></div>
+                        <div class="dotted-line"></div>
+                        <span id="cost_${id}">${cost}</span>
+                        <span id="close_${id}" class="close">&times;</span>
+                    </div>
+                `)
                 $(`#close_${id}`).click( function () {
                     var id =  $(this).attr('id').split('_')[1]
                     order.splice(order.indexOf(id), 1);
@@ -26,6 +37,13 @@ $(document).ready(function () {
                     drawOrderList();
                 })
             }
+            orderContent.append(`
+                <div class="order-card">
+                    <span>TOTAL</span>
+                    <div class="dotted-line"></div>
+                    <span>${ dollarLocale.format(total) }</span>
+                </div>
+            `)
             orderButtons.append('<button id="submit_order" type="submit">Submit</button>')
         }
     }
