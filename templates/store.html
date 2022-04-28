@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="description" content="Snake skins store">
+    <meta name="theme-color" content="#43e97b">
     <title>Skins Store</title>
     <link rel="stylesheet" href={{ url_for('static', filename='./css/store.css') }}>
     <link rel="shortcut icon" href="{{ url_for('static', filename='./img/favicon.ico') }}">
@@ -11,13 +13,13 @@
 <body>
     {# NAV BAR #}
     <header>
-        <div class="title">
+        <a href="/" class="title">
             <img src="{{ url_for('static', filename='./img/logo.png') }}" alt="logo">
             <span>kins Shop</span>
-        </div>
+        </a>
         <div class="panel">
-            <img id="shopping_cart" src="{{ url_for('static', filename='./img/shopping_cart.png') }}" alt="cart">
             <div class="dropdown">
+                <span>NICKNAME</span>
                 <img id="avatar" src="{{ url_for('static', filename='./img/avatar.png') }}" alt="avatar">
                 <div class="dropdown-content">
                     <a href="#">My Profile</a>
@@ -28,18 +30,23 @@
         </div>
     </header>
 
-    {#  SHOPPING CARD  #}
+    {#  SHOPPING CART  #}
+    <div id="shopping_cart">
+        <img src="{{ url_for('static', filename='./img/shopping_cart.png') }}" alt="cart">
+    </div>
     <div id="order" class="modal">
         <div class="modal-content">
-            <span id="close">&times;</span>
+            <span id="close_shopping_cart" class="close">&times;</span>
             <p>Your order:</p>
+            <div id="order-content"></div>
+            <div id="order-buttons"></div>
         </div>
     </div>
 
     {# CATEGORY #}
     <div class="category-bar">
-        <a href="#" class="category-bar_btn corner active">COLOR</a>
-        <a href="#" class="category-bar_btn inside">GRADIENT</a>
+        <a href="#" class="category-bar_btn corner">COLOR</a>
+        <a href="#" class="category-bar_btn inside active">GRADIENT</a>
         <a href="#" class="category-bar_btn corner">PATTERN</a>
     </div>
 
@@ -47,14 +54,15 @@
     <div class="container">
         {# CUSTOM COLOR ITEM #}
         {% for i in items %}
-            <div class="item">
+            <div id="{{ i }}" class="item">
+                <span class="tip_item">+</span>
                 <div class="item-img"></div>
-                <p>$00.50</p>
+                <span>$00.50</span>
             </div>
         {% endfor %}
     </div>
 
-    {# PADDING #}
-    <div class="padding"></div>
+    {# PAGINATION #}
+    <div class="pagination"></div>
 </body>
 </html>

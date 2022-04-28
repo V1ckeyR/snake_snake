@@ -3,13 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <title>snake_snake</title>
-    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href={{ url_for('static', filename='./css/style.css') }}>
+    <link rel="stylesheet" href={{ url_for('static', filename='./css/store.css') }}>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='./img/favicon.ico') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
-    <script type="text/javascript" charset="utf-8" src="static/client.js"></script>
-
+    <script src="{{ url_for('static', filename='./js/client.js') }}"></script>
 </head>
 <body>
-<div class="center"> WELCOME TO SNAKE SNAKE GAME!</div>
+    <header>
+        <a href="/" class="title">
+            <img src="{{ url_for('static', filename='./img/logo.png') }}" alt="logo">
+            <span>NAKE GAME</span>
+        </a>
+        <div class="panel">
+            <div class="dropdown">
+                <span>NICKNAME</span>
+                <img id="avatar" src="{{ url_for('static', filename='./img/avatar.png') }}" alt="avatar">
+                <div class="dropdown-content">
+                    <a href="/store">Skins Store</a>
+                    <a href="#">My Profile</a>
+                    <a href="#">My Skins</a>
+                    <a href="#">My Balance</a>
+                </div>
+            </div>
+        </div>
+    </header>
 
 <div id="field">
     {# GAME FIELD #}
