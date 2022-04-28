@@ -1,5 +1,5 @@
 import random
-from game._snake import _Snake
+from core.game._snake import _Snake
 
 
 class Field:

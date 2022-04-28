@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Snake skins store">
+    <meta name="theme-color" content="#43e97b">
+    <title>Skins Store</title>
+    <link rel="stylesheet" href={{ url_for('static', filename='./css/store.css') }}>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='./img/favicon.ico') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename='./js/store.js') }}"></script>
+</head>
+<body>
+    {# NAV BAR #}
+    <header>
+        <a href="/" class="title">
+            <img src="{{ url_for('static', filename='./img/logo.png') }}" alt="logo">
+            <span>kins Shop</span>
+        </a>
+        <div class="panel">
+            <div class="dropdown">
+                <span>NICKNAME</span>
+                <img id="avatar" src="{{ url_for('static', filename='./img/avatar.png') }}" alt="avatar">
+                <div class="dropdown-content">
+                    <a href="#">My Profile</a>
+                    <a href="#">My Skins</a>
+                    <a href="#">My Balance</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    {#  SHOPPING CART  #}
+    <div id="shopping_cart">
+        <img src="{{ url_for('static', filename='./img/shopping_cart.png') }}" alt="cart">
+    </div>
+    <div id="order" class="modal">
+        <div class="modal-content">
+            <span id="close_shopping_cart" class="close">&times;</span>
+            <p>Your order:</p>
+            <div id="order-content"></div>
+            <div id="order-buttons"></div>
+        </div>
+    </div>
+
+    {# CATEGORY #}
+    <div class="category-bar">
+        <a href="#" class="category-bar_btn corner">COLOR</a>
+        <a href="#" class="category-bar_btn inside active">GRADIENT</a>
+        <a href="#" class="category-bar_btn corner">PATTERN</a>
+    </div>
+
+    {#  ITEMS TO BUY  #}
+    <div class="container">
+        {# CUSTOM COLOR ITEM #}
+        {% for i in items %}
+            <div id="{{ i }}" class="item">
+                <span class="tip_item">+</span>
+                <div class="item-img"></div>
+                <span class="cost">$00.50</span>
+            </div>
+        {% endfor %}
+    </div>
+
+    {# PAGINATION #}
+    <div class="pagination"></div>
+</body>
+</html>

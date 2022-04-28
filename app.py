@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 import eventlet
-from game.field import Field
+from core.game import Field
 
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
@@ -17,6 +17,11 @@ movements = {}
 @app.route('/')
 def hello_snake():
     return render_template('index.html', size=range(game.size))
+
+
+@app.route('/store')
+def skins_store():
+    return render_template('store.html', items=range(20))
 
 
 @socket_io.on('message')
