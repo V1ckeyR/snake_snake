@@ -2,11 +2,20 @@ from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 import eventlet
 from core.game import Field
+from security import *
+from flask_sqlalchemy import SQLAlchemy
 
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 eventlet.monkey_patch(thread=False)
 socket_io = SocketIO(app, async_mode='eventlet')
+app.config['SECRET_KEY'] = secret_key
+
+""" DB SETTINGS """
+uri = f'mysql+pymysql://{USER}:{PASSWORD}@{HOST}/{NAME}'
+app.config['SQLALCHEMY_DATABASE_URI'] = uri
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
 game = Field()
 available = ['r', 'o', 'y', 'g', 'c', 'b', 'v']
