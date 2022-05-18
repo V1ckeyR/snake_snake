@@ -3,8 +3,13 @@ from app import db
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, unique=True, nullable=False)
+    name = db.Column(db.String(20), unique=True, nullable=False)
     cost = db.Column(db.Float, nullable=False)
 
-    def __repr__(self):cd
+    @staticmethod
+    def add(name, cost):
+        db.session.add(Category(name=name, cost=cost))
+        db.session.commit()
+
+    def __repr__(self):
         return f'<Category { self.name }>'
