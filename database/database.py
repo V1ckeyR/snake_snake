@@ -3,6 +3,7 @@ import json
 
 from app import db
 from models import *
+from logger import logging
 
 
 FIXTURES_PATH = os.path.join(os.getcwd(), 'fixtures')
@@ -23,6 +24,7 @@ class Database:
 
         _populate_table_with_json(Category, 'category.json')
         _populate_table_with_json(Skin, 'skin.json')
+        logging.info('DB was recreated')
 
     @staticmethod
     def get_categories():
