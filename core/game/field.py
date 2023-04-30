@@ -1,134 +1,124 @@
+import asyncio
 import random
-from core.game._snake import _Snake
+
+from .snake import Snake
+from .constants import *
 
 
 class Field:
-    def __init__(self, size=15):
+    def __init__(self, size=FIELD_SIZE):
         self.size = size
+        self.divider = '-' * size * 3
+        self.entry_points = EntryPoint(size)
+        self.players = {}
         self.field = [['.' for _ in range(size)] for _ in range(size)]
-        self.snakes = []
-        self.entry_point = (len(self.field) - 1, len(self.field) // 2)
-        self.apple = tuple()
-        self.generate_apple()
+        self.apple = (0, 0)
+        self._generate_apple()
 
-    def show(self):
-        print('--' * self.size)
-        for row in self.field:
-            print(' '.join(row))
-        print('--' * self.size)
+    def print(self):
+        print(*[' '.join(i) for i in self.field], sep='\n')
 
-    def clear(self):
-        self.field = [['.' for _ in range(self.size)] for _ in range(self.size)]
-        self.snakes = []
-        self.generate_apple()
+    def add_player(self, uid):
+        if uid in self.players.keys():
+            print('This user already in game!')
+            return
 
-    def add_player(self, player):
-        if player not in self.snakes:
-            snake = _Snake(player)
-            self.snakes.append(snake)
-            snake.head = self.entry_point
-            self.field[self.entry_point[0]][self.entry_point[1]] = snake.color.upper()
+        if len(self.players) >= len(list(self.entry_points.points)):
+            raise NoMorePlayers
 
-    def remove_player(self, player):
-        if player in self.snakes:
-            self.remove_snake(self.snakes[self.snakes.index(player)])
+        self.players[uid] = Snake(list(self.entry_points.points)[len(self.players)])
+        print(f'Player {uid} --> {self.players[uid]}')  # TODO: print --> logging
 
-    def add_snake(self, snake):
-        self.snakes.append(snake)
-        for y in range(self.size):
-            for x in range(self.size):
-                if (x, y) == snake.head:
-                    self.field[x][y] = snake.color.upper()
-                if (x, y) in snake.body:
-                    self.field[x][y] = snake.color
+    def remove_player(self, uid):
+        if uid not in self.players.keys():
+            print('This user not in game')
 
-    def remove_snake(self, snake):
-        self.snakes.remove(snake)
-        for y in range(self.size):
-            for x in range(self.size):
-                if (x, y) in snake.body or (x, y) == snake.head:
-                    self.field[x][y] = '.'
+        self.players.pop(uid)
 
-    def move_snake(self, snake, direction):
-        """:returns snake status and True if game goal has reached"""
-        self.remove_snake(snake)  # kill snake
-        snake_alive = False
-        if snake.move(direction, self.size, self.apple) and self.snake_vs_snake(snake):  # True if snake survived
-            self.add_snake(snake)  # resurrect snake if so
-            snake_alive = True
-            if snake.head == self.apple:  # check if we need new apple
-                return snake_alive, not self.generate_apple()
-        return snake_alive, False
+        if not self.players.keys():
+            raise GameOver
 
-    def move_snakes(self, players):
-        results = {"game over": False}
-        for player in players.keys():
-            if player not in self.snakes:
-                results[player] = False
-            else:
-                snake = self.snakes[self.snakes.index(player)]
-                snake_status, game_status = self.move_snake(snake, direction=players[player])
-                results[player] = (snake_status, snake.score)
-                if game_status:
-                    results["game over"] = game_status  # change only if True
-        return results
+        self._draw_field()
 
-    def free_cells(self):
-        cells = []
-        for y in range(self.size):
-            for x in range(self.size):
-                if self.field[x][y] == '.':
-                    cells.append((x, y))
-        return cells
+    async def move_snakes(self, keys: dict):
+        # TODO: compare time
+        async with asyncio.TaskGroup() as tg:
+            for uid, snake in self.players.items():
+                tg.create_task(snake.go(keys[uid], self.apple))
 
-    def generate_apple(self):
-        """:returns True if apple was generated"""
-        try:
-            self.apple = random.choice(self.free_cells())
-        except IndexError:
-            return False
+        dead_users = self._dead_snakes()  # check survivors
 
-        for y in range(self.size):
-            for x in range(self.size):
-                if (x, y) == self.apple:
-                    self.field[x][y] = 'A'
-        return True
+        self._snake_fight()  # check snake-vs-snake
 
-    def get_player_score(self, player):
-        return self.snakes[player].score
+        dead_users.update(self._dead_snakes())  # check survivors
 
-    def snake_vs_snake(self, attacker):
-        """ :returns True if attacker stay alive"""
-        for snake in self.snakes:
-            if snake != attacker:
-                if attacker.head in [snake.head] + snake.body:
-                    attacker_alive, defender_alive = attacker.attack(snake)
-                    self.remove_snake(snake)
-                    if defender_alive:
-                        self.add_snake(snake)
-                    if attacker_alive:
-                        return True
-                    return False
-        return True
+        self._draw_field()
+
+        if not self._free_cells():
+            print('Game over! Players won!')
+            raise GameOverWin
+
+        return dead_users
 
     def generate_field_from_template(self, field):
-        self.field = field
-        for y in range(self.size):
-            for x in range(self.size):
-                cell = field[x][y]
-                if cell == '.':
-                    continue
-                if cell == 'A':
-                    self.apple = (x, y)
-                    continue
+        pass
 
-                snake_name = cell.lower()
-                if snake_name not in self.snakes:
-                    snake = _Snake(snake_name)
-                    self.snakes.append(snake)
-                else:
-                    snake = self.snakes[self.snakes.index(snake_name)]
-                if snake_name == cell:
-                    snake.body.append((x, y))
-                else:
-                    snake.head = (x, y)
+    def _draw_apple(self):
+        x, y = self.apple
+        self.field[x][y] = 'A'
+
+    def _draw_snakes(self):
+        for snake in self.players.values():
+            for x, y in snake.body():
+                self.field[x][y] = snake.name.upper() if (x, y) == snake.head else snake.name
+
+    def _draw_field(self):
+        self.field = [['.' for _ in range(self.size)] for _ in range(self.size)]
+        if self.apple in [snake.head for snake in list(self.players.values())]:
+            self._generate_apple()
+        else:
+            self._draw_apple()
+        self._draw_snakes()
+        self.print()
+
+    def _free_cells(self):
+        return [(x, y) for x in range(self.size) for y in range(self.size) if self.field[x][y] == '.']
+
+    def _generate_apple(self):
+        if not self._free_cells():
+            return
+
+        self.apple = random.choice(self._free_cells())
+        self._draw_apple()
+        print(f'Generated apple {self.apple}')
+
+    def _dead_snakes(self):
+        users = set()
+        for snake in self.players.values():
+            if not snake.alive:
+                uid = list(self.players.keys())[list(self.players.values()).index(snake)]
+                users.add(uid)
+                self.players.pop(uid)
+
+        if not self.players.keys():
+            print('Game over! Players lose!')
+            raise GameOverLose
+
+        return users  # TODO: notify user
+
+    def _snake_fight(self):
+        snake_ball = set()
+        for snake in self.players.values():
+            other_snakes = list(self.players.values())
+            other_snakes.remove(snake)
+            for another_snake in other_snakes:
+                if snake.head in another_snake.body():
+                    snake_ball.update((snake, another_snake))
+
+        min_length = min([len(snake.body()) for snake in snake_ball], default=0)
+        print(f'Ready to fight: {snake_ball} -> Smallest length: {min_length}')
+        for snake in snake_ball:
+            if len(snake.body) > min_length:
+                snake.tail = snake.tail[:min_length]
+            else:
+                snake.alive = False
