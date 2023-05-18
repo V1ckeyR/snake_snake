@@ -28,6 +28,7 @@ class Field:
 
         self.players[uid] = Snake(list(self.entry_points.points)[len(self.players)])
         print(f'Player {uid} --> {self.players[uid]}')  # TODO: print --> logging
+        self._draw_field()
 
     def remove_player(self, uid):
         if uid not in self.players.keys():
@@ -44,7 +45,7 @@ class Field:
         # TODO: compare time
         async with asyncio.TaskGroup() as tg:
             for uid, snake in self.players.items():
-                tg.create_task(snake.go(keys[uid], self.apple))
+                tg.create_task(snake.go(keys[uid], self.apple, self.size))
 
         dead_users = self._dead_snakes()  # check survivors
 
@@ -59,9 +60,6 @@ class Field:
             raise GameOverWin
 
         return dead_users
-
-    def generate_field_from_template(self, field):
-        pass
 
     def _draw_apple(self):
         x, y = self.apple
@@ -98,7 +96,8 @@ class Field:
             if not snake.alive:
                 uid = list(self.players.keys())[list(self.players.values()).index(snake)]
                 users.add(uid)
-                self.players.pop(uid)
+
+        [self.players.pop(user) for user in users]
 
         if not self.players.keys():
             print('Game over! Players lose!')
@@ -116,7 +115,7 @@ class Field:
                     snake_ball.update((snake, another_snake))
 
         min_length = min([len(snake.body()) for snake in snake_ball], default=0)
-        print(f'Ready to fight: {snake_ball} -> Smallest length: {min_length}')
+        print(f'Ready to fight: {", ".join(snake_ball)} -> Smallest: {min_length}' if len(snake_ball) else 'No fight')
         for snake in snake_ball:
             if len(snake.body) > min_length:
                 snake.tail = snake.tail[:min_length]

@@ -70,118 +70,87 @@ def test_remove_player():
 async def test_print_field(capsys):
     # GIVEN
     f = Field(size=5)
-
-    player1, player2 = 'r', 'g'
+    player1, player2, player3, player4 = 'r', 'g', 'b', 'y'
     f.add_player(player1)
     f.add_player(player2)
-    apple = (2, 4)
-    expected = ". . . . .\n" \
-               ". . N . .\n" \
-               ". . . . A\n" \
-               ". . S . .\n" \
-               ". . . . ."
+    f.add_player(player3)
+    f.add_player(player4)
+    a_x, a_y = [(x, y) for x in range(5) for y in range(5) if f.field[x][y] == 'A'][0]  # find apple coordinates
+    expected_field = [
+        ['.', '.', 'N', '.', '.'],
+        ['.', '.', '.', '.', '.'],
+        ['W', '.', '.', '.', 'E'],
+        ['.', '.', '.', '.', '.'],
+        ['.', '.', 'S', '.', '.'],
+    ]
+    expected_field[a_x][a_y] = 'A'
+    printed_field = '\n'.join([' '.join(i) for i in expected_field])
 
     # WHEN
-    f.generate_field_from_template(expected)
     f.print()
     printed = capsys.readouterr().out
 
     # THEN
-    assert expected in printed
-    assert f.apple == apple
+    assert expected_field == f.field
+    assert printed_field in printed
 
-def test_generate_field_from_template():
+@pytest.mark.asyncio
+async def test_move_snakes_succeed(capsys):
     # GIVEN
     f = Field(size=5)
-    f.apple = (2, 4)
     player1, player2 = 'r', 'g'
-    expected = ". . . . .\n" \
-               ". . N . .\n" \
-               ". . . . A\n" \
-               ". . S . .\n" \
-               ". . . . ."
+    f.add_player(player1)
+    f.add_player(player2)
+    expected_r = 'Snake n go d'
+    expected_g = 'Snake s go a'
 
-#
-#     # WHEN
-#     f1.apple = (0, 0)
-#
-#     f1.add_player('r')
-#     red = f1.snakes[f1.snakes.index('r')]
-#     f1.move_snake(red, 'w')
-#
-#     f1.add_player('b')
-#     blue = f1.snakes[f1.snakes.index('b')]
-#     f1.move_snake(red, 'w')
-#     f1.move_snake(blue, 'd')
-#
-#     f2.generate_field_from_template(expected_field)
-#
-#     # THEN
-#     assert f1.snakes[0].body == f2.snakes[0].body
-#
-#
-# def test_move_snakes_succeed():
-#     # GIVEN
-#     f = Field(size=3)
-#     field = [
-#         ['A', '.', '.'],
-#         ['.', 'R', '.'],
-#         ['.', 'B', '.'],
-#     ]
-#     players = {'r': 'w', 'b': 'd'}
-#     expected_field = [
-#         ['A', 'R', '.'],
-#         ['.', '.', '.'],
-#         ['.', '.', 'B'],
-#     ]
-#
-#     # WHEN
-#     f.generate_field_from_template(field)
-#     results = f.move_snakes(players)
-#
-#     # THEN
-#     assert results['r'] and results['b'] and not results['game over']
-#     assert 'r' in f.snakes and 'b' in f.snakes
-#     assert f.field == expected_field
-#
-#
-# def test_move_snakes_eat_apple():
-#     # GIVEN
-#     f = Field(size=3)
-#     field = [
-#         ['A', 'R', '.'],
-#         ['.', '.', '.'],
-#         ['.', 'B', '.'],
-#     ]
-#     players = {'r': 'a', 'b': 'w'}
-#
-#     # WHEN
-#     f.generate_field_from_template(field)
-#     results = f.move_snakes(players)
-#
-#     # THEN
-#     assert results['r'] and results['b'] and not results['game over']
-#     assert 'r' in f.snakes and 'b' in f.snakes
-#
-#
-# def test_move_snakes_meet_boundary():
-#     # GIVEN
-#     f = Field(size=3)
-#     field = [
-#         ['A', 'R', '.'],
-#         ['.', '.', '.'],
-#         ['.', 'B', '.'],
-#     ]
-#     players = {'r': 'w', 'b': 'w'}
-#
-#     # WHEN
-#     f.generate_field_from_template(field)
-#     results = f.move_snakes(players)
-#
-#     # THEN
-#     assert not results['r'][0] and results['b'][0] and not results['game over']
-#     assert 'r' not in f.snakes and 'b' in f.snakes
-#
+    # WHEN
+    await f.move_snakes({'r': 'd', 'g': 'a'})
+    printed = capsys.readouterr().out
+
+    # THEN
+    assert expected_r in printed
+    assert expected_g in printed
+
+@pytest.mark.asyncio
+async def test_move_snakes_eat_apple():
+    # GIVEN
+    f = Field(size=3)
+    player1 = 'r'
+    f.add_player(player1)
+
+    # WHEN
+    await f.move_snakes({'r': 'd'})  # check every cell in field
+    await f.move_snakes({'r': 's'})
+    await f.move_snakes({'r': 's'})
+    await f.move_snakes({'r': 'a'})
+    await f.move_snakes({'r': 'a'})
+    await f.move_snakes({'r': 'w'})
+    await f.move_snakes({'r': 'w'})
+    await f.move_snakes({'r': 'd'})
+    await f.move_snakes({'r': 's'})
+
+    # THEN
+    assert len(f.players['r'].body()) != 0
+
+@pytest.mark.asyncio
+async def test_move_snakes_meet_boundary(capsys):
+    # GIVEN
+    f = Field(size=3)
+    player1 = 'r'
+    f.add_player(player1)
+    await f.move_snakes({'r': 'd'})
+    expected = 'Snake n crashes into wall'
+
+    # WHEN
+    with pytest.raises(const.GameOverLose):
+        await f.move_snakes({'r': 'd'})
+    printed = capsys.readouterr().out
+
+    # THEN
+    assert not f.players
+    assert expected in printed
+
 #
 # def test_move_snakes_eat_itself():
 #     # GIVEN
