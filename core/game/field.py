@@ -33,6 +33,7 @@ class Field:
     def remove_player(self, uid):
         if uid not in self.players.keys():
             print('This user not in game')
+            return
 
         self.players.pop(uid)
 
@@ -115,9 +116,9 @@ class Field:
                     snake_ball.update((snake, another_snake))
 
         min_length = min([len(snake.body()) for snake in snake_ball], default=0)
-        print(f'Ready to fight: {", ".join(snake_ball)} -> Smallest: {min_length}' if len(snake_ball) else 'No fight')
+        print(f'Ready to fight: {snake_ball} -> Smallest: {min_length}' if len(snake_ball) else 'No fight')
         for snake in snake_ball:
-            if len(snake.body) > min_length:
+            if len(snake.body()) > min_length:
                 snake.tail = snake.tail[:min_length]
             else:
                 snake.alive = False

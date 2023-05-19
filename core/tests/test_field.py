@@ -66,6 +66,21 @@ def test_remove_player():
     assert player1 in f.players.keys()
     assert player2 not in f.players.keys()
 
+def test_remove_nonexistent_player():
+    # GIVEN
+    f = Field(size=5)
+    player1, player2 = 'r', 'g'
+
+    # WHEN
+    f.add_player(player1)
+    f.remove_player(player2)
+
+    # THEN
+    assert len(f.players) == 1
+    assert player1 in f.players.keys()
+    assert player2 not in f.players.keys()
+
+
 @pytest.mark.asyncio
 async def test_print_field(capsys):
     # GIVEN
@@ -98,9 +113,8 @@ async def test_print_field(capsys):
 async def test_move_snakes_succeed(capsys):
     # GIVEN
     f = Field(size=5)
-    player1, player2 = 'r', 'g'
-    f.add_player(player1)
-    f.add_player(player2)
+    f.add_player('r')
+    f.add_player('g')
     expected_r = 'Snake n go d'
     expected_g = 'Snake s go a'
 
@@ -116,8 +130,7 @@ async def test_move_snakes_succeed(capsys):
 async def test_move_snakes_eat_apple():
     # GIVEN
     f = Field(size=3)
-    player1 = 'r'
-    f.add_player(player1)
+    f.add_player('r')
 
     # WHEN
     await f.move_snakes({'r': 'd'})  # check every cell in field
@@ -137,8 +150,7 @@ async def test_move_snakes_eat_apple():
 async def test_move_snakes_meet_boundary(capsys):
     # GIVEN
     f = Field(size=3)
-    player1 = 'r'
-    f.add_player(player1)
+    f.add_player('r')
     await f.move_snakes({'r': 'd'})
     expected = 'Snake n crashes into wall'
 
@@ -151,59 +163,94 @@ async def test_move_snakes_meet_boundary(capsys):
     assert not f.players
     assert expected in printed
 
-#
-# def test_move_snakes_eat_itself():
-#     # GIVEN
-#     f = Field(size=3)
-#     field = [
-#         ['A', 'r', 'r'],
-#         ['.', 'R', 'r'],
-#         ['.', 'B', 'r'],
-#     ]
-#     players = {'r': 'd', 'b': 'a'}
-#
-#     # WHEN
-#     f.generate_field_from_template(field)
-#     results = f.move_snakes(players)
-#
-#     # THEN
-#     assert not results['r'][0] and results['b'][0] and not results['game over']
-#     assert 'r' not in f.snakes and 'b' in f.snakes
-#
-#
-# def test_move_snakes_fight():
-#     # GIVEN
-#     f = Field(size=3)
-#     field = [
-#         ['A', 'r', 'r'],
-#         ['R', 'r', 'r'],
-#         ['B', '.', '.'],
-#     ]
-#     players = {'r': 's', 'b': 'w'}
-#
-#     # WHEN
-#     f.generate_field_from_template(field)
-#     results = f.move_snakes(players)
-#
-#     # THEN
-#     assert results['r'] and not results['b'] and not results['game over']
-#     assert 'r' in f.snakes and 'b' not in f.snakes
-#
-#
-# def test_game_win():
-#     # GIVEN
-#     f = Field(size=3)
-#     field = [
-#         ['B', 'A', 'R'],
-#         ['b', 'G', 'r'],
-#         ['b', 'g', 'r'],
-#     ]
-#     players = {'g': 'w'}
-#
-#     # WHEN
-#     f.generate_field_from_template(field)
-#     results = f.move_snakes(players)
-#
-#     # THEN
-#     assert results['g'] and results['game over']
-#     assert 'r' in f.snakes and 'b' in f.snakes and 'g' in f.snakes
+@pytest.mark.asyncio
+async def test_move_snakes_eat_itself(capsys):
+    # GIVEN
+    f = Field(size=3)
+    f.add_player('r')
+    f.players['r'].tail = [(1, 1), (2, 1), (2, 0)]
+    expected = 'Snake n crashes into itself'
+
+    # WHEN
+    with pytest.raises(const.GameOverLose):
+        await f.move_snakes({'r': 's'})
+    printed = capsys.readouterr().out
+
+    # THEN
+    assert expected in printed
+
+@pytest.mark.asyncio
+async def test_move_snakes_fight_draw(capsys):
+    # GIVEN
+    f = Field(size=3)
+    f.add_player('r')
+    f.add_player('g')
+    expected = 'Ready to fight'
+
+    # WHEN
+    with pytest.raises(const.GameOverLose):
+        await f.move_snakes({'r': 's', 'g': 'w'})
+    printed = capsys.readouterr().out
+
+    # THEN
+    assert expected in printed
+    assert not f.players.get('r')
+    assert not f.players.get('g')
+
+@pytest.mark.asyncio
+async def test_move_snakes_fight_player_r(capsys):
+    # GIVEN
+    f = Field(size=3)
+    f.add_player('r')
+    f.players['r'].head = (1, 1)
+    f.players['r'].tail = [(1, 0)]
+    f.add_player('g')
+    expected = 'Ready to fight'
+
+    # WHEN
+    await f.move_snakes({'r': 's', 'g': 'w'})
+    printed = capsys.readouterr().out
+
+    # THEN
+    assert expected in printed
+    assert f.players['r'].alive
+    assert not f.players.get('g')
+
+@pytest.mark.asyncio
+async def test_move_snakes_fight_player_g(capsys):
+    # GIVEN
+    f = Field(size=3)
+    f.add_player('r')
+    f.add_player('g')
+    f.players['g'].head = (1, 1)
+    f.players['g'].tail = [(1, 2)]
+    expected = 'Ready to fight'
+
+    # WHEN
+    await f.move_snakes({'r': 's', 'g': 'w'})
+    printed = capsys.readouterr().out
+
+    # THEN
+    assert expected in printed
+    assert not f.players.get('r')
+    assert f.players['g'].alive
+
+@pytest.mark.asyncio
+async def test_game_win(capsys):
+    # GIVEN
+    f = Field(size=2)
+    f.add_player('r')
+    expected = 'Game over! Players won!'
+
+    # WHEN
+    with pytest.raises(const.GameOverWin):
+        while f.players['r'].alive:
+            await f.move_snakes({'r': 'a'})
+            await f.move_snakes({'r': 's'})
+            await f.move_snakes({'r': 'd'})
+            await f.move_snakes({'r': 'w'})
+
+    printed = capsys.readouterr().out
+
+    # THEN
+    assert expected in printed
