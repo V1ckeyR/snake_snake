@@ -44,7 +44,7 @@ def handle_message(data):
 @socket_io.on('start game')
 def handle_start_game():
     try:
-        color = available.pop(0)
+        color = available.pop(0)  # TODO: fix colors
         game.add_player(request.sid, color)
         emit('field', game.field, broadcast=True)
         emit('personal data', color)
@@ -58,20 +58,18 @@ def check_dead():
         available.append(game.get_color(dead))
         emit('dead', to=dead)
 
+@socket_io.on('game')
 def handle_game():
-    color = game.get_color(request.sid)
     try:
         asyncio.run(game.move_snakes(movements))
     except GameOverLose:
         check_dead()
         game.clear()
-        pass
-        # emit('lose', broadcast=True)  # TODO
+        emit('lose', broadcast=True)
     except GameOverWin:
         check_dead()
         game.clear()
-        pass
-        # emit('win', broadcast=True)  # TODO
+        emit('win', broadcast=True)
     else:
         check_dead()
         if game.get_status(request.sid):
@@ -82,14 +80,10 @@ def handle_game():
     movements.clear()
     emit('field', game.field, broadcast=True)
 
-@socket_io.on('game')
+@socket_io.on('key')
 def set_key(key):
     if request.sid not in movements.keys():
         movements[request.sid] = key
-
-    while game.players:
-        time.sleep(1)
-        handle_game()
 
 @socket_io.on('connect')
 def connect():

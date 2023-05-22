@@ -18,6 +18,9 @@ const COLORS = {
 const changeColor = (el, value) => el.style.background = COLORS[value]
 
 var socket = io();
+const emitStep = () => socket.emit('game')
+var stepInterval = 0
+
 socket.on('field', function (field) {
     console.log('START TO DRAW FIELD', field)
     for (const i in field) for (const j in field) {
@@ -44,19 +47,30 @@ socket.on('dead', function () {
     document.getElementById("game_in_progress").className = "off";
 });
 
+socket.on('win', function () {
+    clearInterval(stepInterval)
+    alert('You are win! Congrats!')
+})
+
+socket.on('lose', function () {
+    clearInterval(stepInterval)
+    alert('Game over!')
+})
+
 document.addEventListener('keydown', function (e) {
     const progress = document.getElementById("game_in_progress");
     if (progress.classList.contains("off")) {
         const start = document.getElementById("game_start");
         if (e.code === 'KeyW') {
             socket.emit('start game')
+            stepInterval = setInterval(emitStep, 1000);
             start.className = "off";
             progress.classList.remove("off");
         }
     } else {
-        if (e.code === 'KeyW') socket.emit('game', 'w');
-        if (e.code === 'KeyA') socket.emit('game', 'a');
-        if (e.code === 'KeyS') socket.emit('game', 's');
-        if (e.code === 'KeyD') socket.emit('game', 'd');
+        if (e.code === 'KeyW') socket.emit('key', 'w');
+        if (e.code === 'KeyA') socket.emit('key', 'a');
+        if (e.code === 'KeyS') socket.emit('key', 's');
+        if (e.code === 'KeyD') socket.emit('key', 'd');
     }
 });
