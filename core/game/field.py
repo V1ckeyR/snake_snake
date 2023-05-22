@@ -11,6 +11,7 @@ class Field:
         self.divider = '-' * size * 3
         self.entry_points = EntryPoint(size)
         self.players = {}
+        self.dead_players = []
         self.field = [['.' for _ in range(size)] for _ in range(size)]
         self.apple = None
 
@@ -19,6 +20,7 @@ class Field:
 
     def clear(self):
         self.players = {}
+        self.dead_players = []
         self.field = [['.' for _ in range(self.size)] for _ in range(self.size)]
         self.apple = None
 
@@ -60,6 +62,7 @@ class Field:
 
         print(f'User {uid} ({self.players[uid]}) is dead')
         self.players.pop(uid)
+        self.dead_players.append(uid)
 
         if not self.players.keys():
             raise GameOverLose
@@ -72,12 +75,10 @@ class Field:
             for uid, snake in self.players.items():
                 tg.create_task(snake.go(keys.get(uid), self.apple, self.size))
 
+        self.dead_players = []
         self._check_survivors()  # check survivors
-
         self._snake_fight()  # check snake-vs-snake
-
         self._check_survivors()  # check survivors
-
         self._draw_field()
 
         if not self._free_cells():
@@ -85,8 +86,9 @@ class Field:
             raise GameOverWin
 
     def _draw_apple(self):
-        x, y = self.apple
-        self.field[x][y] = 'A'
+        if self.apple:
+            x, y = self.apple
+            self.field[x][y] = 'A'
 
     def _draw_snakes(self):
         for snake in self.players.values():
@@ -122,6 +124,9 @@ class Field:
         [self.remove_player(user) for user in users]
 
     def _snake_fight(self):
+        if len(self.players) < 2:
+            return
+
         snake_ball = set()
         for snake in self.players.values():
             other_snakes = list(self.players.values())

@@ -21,7 +21,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-game = Field()
+game = Field(size=11)
 available = ['r', 'y', 'c', 'v']
 movements = {}
 
@@ -52,24 +52,30 @@ def handle_start_game():
         emit('limit')  # TODO
 
 
+def check_dead():
+    print('dead_players', game.dead_players)
+    for dead in game.dead_players:
+        available.append(game.get_color(dead))
+        emit('dead', to=dead)
+
 def handle_game():
     color = game.get_color(request.sid)
     try:
         asyncio.run(game.move_snakes(movements))
     except GameOverLose:
+        check_dead()
         game.clear()
         pass
         # emit('lose', broadcast=True)  # TODO
     except GameOverWin:
+        check_dead()
         game.clear()
         pass
         # emit('win', broadcast=True)  # TODO
     else:
+        check_dead()
         if game.get_status(request.sid):
             emit('personal score', game.get_score(request.sid))
-        else:
-            available.append(color)
-            emit('dead')
     finally:
         emit('field', game.field, broadcast=True)
 
@@ -82,7 +88,7 @@ def set_key(key):
         movements[request.sid] = key
 
     while game.players:
-        time.sleep(2)
+        time.sleep(1)
         handle_game()
 
 @socket_io.on('connect')
