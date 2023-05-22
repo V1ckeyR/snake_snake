@@ -2,7 +2,7 @@ from .constants import Point, OPPOSITE, FIELD_SIZE, OPERATION
 
 
 class Snake:
-    def __init__(self, entry_point: Point, color=None):
+    def __init__(self, entry_point: Point, color='g'):
         self.name = entry_point.name
         self.head = entry_point.head
         self.tail = []
@@ -11,8 +11,8 @@ class Snake:
         self.score = 0
         self.alive = True
 
-    def __str__(self):
-        return f'Snake {self.name}'
+    def __repr__(self):
+        return f'Snake {self.name} with color {self.color}'
 
     def body(self):
         return [self.head, *self.tail]

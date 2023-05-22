@@ -12,13 +12,32 @@ class Field:
         self.entry_points = EntryPoint(size)
         self.players = {}
         self.field = [['.' for _ in range(size)] for _ in range(size)]
-        self.apple = (0, 0)
-        self._generate_apple()
+        self.apple = None
 
     def print(self):
         print(*[' '.join(i) for i in self.field], sep='\n')
 
-    def add_player(self, uid):
+    def clear(self):
+        self.players = {}
+        self.field = [['.' for _ in range(self.size)] for _ in range(self.size)]
+        self.apple = None
+
+    def get_score(self, uid):
+        if uid not in self.players.keys():
+            print('This user has no score')
+            return
+        return self.players[uid].score
+
+    def get_color(self, uid):
+        if uid not in self.players.keys():
+            print('This user has no score')
+            return
+        return self.players[uid].color
+
+    def get_status(self, uid):
+        return uid in self.players.keys()
+
+    def add_player(self, uid, color='g'):
         if uid in self.players.keys():
             print('This user already in game!')
             return
@@ -26,8 +45,12 @@ class Field:
         if len(self.players) >= len(list(self.entry_points.points)):
             raise NoMorePlayers
 
-        self.players[uid] = Snake(list(self.entry_points.points)[len(self.players)])
+        self.players[uid] = Snake(entry_point=list(self.entry_points.points)[len(self.players)], color=color)
         print(f'Player {uid} --> {self.players[uid]}')  # TODO: print --> logging
+
+        if not self.apple:
+            self._generate_apple()
+
         self._draw_field()
 
     def remove_player(self, uid):
@@ -35,10 +58,11 @@ class Field:
             print('This user not in game')
             return
 
+        print(f'User {uid} ({self.players[uid]}) is dead')
         self.players.pop(uid)
 
         if not self.players.keys():
-            raise GameOver
+            raise GameOverLose
 
         self._draw_field()
 
@@ -46,21 +70,19 @@ class Field:
         # TODO: compare time
         async with asyncio.TaskGroup() as tg:
             for uid, snake in self.players.items():
-                tg.create_task(snake.go(keys[uid], self.apple, self.size))
+                tg.create_task(snake.go(keys.get(uid), self.apple, self.size))
 
-        dead_users = self._dead_snakes()  # check survivors
+        self._check_survivors()  # check survivors
 
         self._snake_fight()  # check snake-vs-snake
 
-        dead_users.update(self._dead_snakes())  # check survivors
+        self._check_survivors()  # check survivors
 
         self._draw_field()
 
         if not self._free_cells():
             print('Game over! Players won!')
             raise GameOverWin
-
-        return dead_users
 
     def _draw_apple(self):
         x, y = self.apple
@@ -69,7 +91,7 @@ class Field:
     def _draw_snakes(self):
         for snake in self.players.values():
             for x, y in snake.body():
-                self.field[x][y] = snake.name.upper() if (x, y) == snake.head else snake.name
+                self.field[x][y] = snake.color.upper() if (x, y) == snake.head else snake.color
 
     def _draw_field(self):
         self.field = [['.' for _ in range(self.size)] for _ in range(self.size)]
@@ -91,20 +113,13 @@ class Field:
         self._draw_apple()
         print(f'Generated apple {self.apple}')
 
-    def _dead_snakes(self):
+    def _check_survivors(self):
         users = set()
         for snake in self.players.values():
             if not snake.alive:
-                uid = list(self.players.keys())[list(self.players.values()).index(snake)]
-                users.add(uid)
+                users.add(list(self.players.keys())[list(self.players.values()).index(snake)])
 
-        [self.players.pop(user) for user in users]
-
-        if not self.players.keys():
-            print('Game over! Players lose!')
-            raise GameOverLose
-
-        return users  # TODO: notify user
+        [self.remove_player(user) for user in users]
 
     def _snake_fight(self):
         snake_ball = set()

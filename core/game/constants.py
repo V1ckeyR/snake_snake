@@ -16,10 +16,6 @@ class NoMorePlayers(Exception):
     pass
 
 
-class GameOver(Exception):
-    pass
-
-
 class GameOverLose(Exception):
     pass
 

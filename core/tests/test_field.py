@@ -92,11 +92,11 @@ async def test_print_field(capsys):
     f.add_player(player4)
     a_x, a_y = [(x, y) for x in range(5) for y in range(5) if f.field[x][y] == 'A'][0]  # find apple coordinates
     expected_field = [
-        ['.', '.', 'N', '.', '.'],
+        ['.', '.', 'G', '.', '.'],
         ['.', '.', '.', '.', '.'],
-        ['W', '.', '.', '.', 'E'],
+        ['G', '.', '.', '.', 'G'],
         ['.', '.', '.', '.', '.'],
-        ['.', '.', 'S', '.', '.'],
+        ['.', '.', 'G', '.', '.'],
     ]
     expected_field[a_x][a_y] = 'A'
     printed_field = '\n'.join([' '.join(i) for i in expected_field])

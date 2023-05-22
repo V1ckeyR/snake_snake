@@ -1,7 +1,11 @@
+import asyncio
+
+from eventlet.green import time
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 import eventlet
 from core.game import Field
+from core.game.constants import *
 from security import *
 from flask_sqlalchemy import SQLAlchemy
 
@@ -18,8 +22,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 game = Field()
-available = ['r', 'o', 'y', 'g', 'c', 'b', 'v']
-clients = {}
+available = ['r', 'y', 'c', 'v']
 movements = {}
 
 
@@ -41,36 +44,46 @@ def handle_message(data):
 @socket_io.on('start game')
 def handle_start_game():
     try:
-        player = available.pop(0)
-        clients[request.sid] = player
-        game.add_player(player)
+        color = available.pop(0)
+        game.add_player(request.sid, color)
         emit('field', game.field, broadcast=True)
-        emit('personal data', player)
+        emit('personal data', color)
     except IndexError:
         emit('limit')  # TODO
 
 
-@socket_io.on('game')
-def handle_game(key):
-    player = clients[request.sid]
-    if player not in movements.keys():
-        movements[player] = key
-
-    results = game.move_snakes(movements)
-    emit('personal score', results[player][1])
-    if results['game over']:
-        emit('win', broadcast=True)  # TODO
+def handle_game():
+    color = game.get_color(request.sid)
+    try:
+        asyncio.run(game.move_snakes(movements))
+    except GameOverLose:
         game.clear()
-
-    if not results[player][0]:
-        clients.pop(request.sid)
-        available.append(player)
-        emit('dead')
+        pass
+        # emit('lose', broadcast=True)  # TODO
+    except GameOverWin:
+        game.clear()
+        pass
+        # emit('win', broadcast=True)  # TODO
+    else:
+        if game.get_status(request.sid):
+            emit('personal score', game.get_score(request.sid))
+        else:
+            available.append(color)
+            emit('dead')
+    finally:
+        emit('field', game.field, broadcast=True)
 
     movements.clear()
-    game.show()
     emit('field', game.field, broadcast=True)
 
+@socket_io.on('game')
+def set_key(key):
+    if request.sid not in movements.keys():
+        movements[request.sid] = key
+
+    while game.players:
+        time.sleep(2)
+        handle_game()
 
 @socket_io.on('connect')
 def connect():
@@ -81,8 +94,19 @@ def connect():
 @socket_io.on('disconnect')
 def disconnect():
     print('Client disconnected')
-    snake = clients[request.sid]
-    game.remove_player(snake)
-    available.append(snake)
-    clients.pop(request.sid)
+
+    color = game.get_color(request.sid)
+    available.append(color)
+
+    try:
+        game.remove_player(request.sid)
+    except GameOverLose:
+        game.clear()
+        pass
+        # emit('lose', broadcast=True)
+
     emit('field', game.field, broadcast=True)
+
+
+if __name__ == '__main__':
+    socket_io.run(app, debug=True)
