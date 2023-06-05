@@ -12,7 +12,7 @@ class Snake:
         self.alive = True
 
     def __repr__(self):
-        return f'Snake {self.name} with color {self.color}'
+        return f'Snake {self.name}'
 
     def body(self):
         return [self.head, *self.tail]

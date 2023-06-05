@@ -1,9 +1,7 @@
 import asyncio
 
-from eventlet.green import time
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
-import eventlet
 from core.game import Field
 from core.game.constants import *
 from security import *
@@ -11,8 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
-eventlet.monkey_patch(thread=False)
-socket_io = SocketIO(app, async_mode='eventlet')
+socket_io = SocketIO(app)
 app.config['SECRET_KEY'] = secret_key
 
 """ DB SETTINGS """
@@ -109,4 +106,4 @@ def disconnect():
 
 
 if __name__ == '__main__':
-    socket_io.run(app, debug=True)
+    socket_io.run(app, host='127.0.0.1', port=8000)

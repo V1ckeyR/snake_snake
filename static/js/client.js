@@ -18,7 +18,7 @@ const COLORS = {
 const changeColor = (el, value) => el.style.background = COLORS[value]
 
 var socket = io();
-const emitStep = () => socket.emit('game')
+const step = () => socket.emit('game')
 var stepInterval = 0
 
 socket.on('field', function (field) {
@@ -43,6 +43,7 @@ socket.on('personal score', function (score) {
 });
 
 socket.on('dead', function () {
+    // Todo: you can not join started game in private room
     document.getElementById("game_start").classList.remove("off");
     document.getElementById("game_in_progress").className = "off";
 });
@@ -63,7 +64,7 @@ document.addEventListener('keydown', function (e) {
         const start = document.getElementById("game_start");
         if (e.code === 'KeyW') {
             socket.emit('start game')
-            stepInterval = setInterval(emitStep, 1000);
+            stepInterval = setInterval(step, 1000);
             start.className = "off";
             progress.classList.remove("off");
         }

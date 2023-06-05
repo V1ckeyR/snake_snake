@@ -70,7 +70,6 @@ class Field:
         self._draw_field()
 
     async def move_snakes(self, keys: dict):
-        # TODO: compare time
         async with asyncio.TaskGroup() as tg:
             for uid, snake in self.players.items():
                 tg.create_task(snake.go(keys.get(uid), self.apple, self.size))
